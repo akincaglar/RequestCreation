@@ -1,0 +1,357 @@
+﻿@using RequestCreation.Context
+@model List<RequestDetail>
+
+@*@using (var context = new RequestDbContext())
+{
+    var data = context.Status.ToList();
+}*@
+@{
+    var collection = (List<Status>)ViewData["getStatusList"];
+}
+<head>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+</head>
+
+@*<h2>Talep Listesi</h2>*@
+<div class="row" style="padding-bottom:20px;">
+    <!-- Button to trigger the modal -->
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#registerModal">
+        Yeni Talep Kayıt
+    </button>
+
+    @*     <button  id="logoutButton" type="button" class="btn btn-primary" > Oturumu Kapat   </button>*@
+
+    <!--Register Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="registerModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="registerModalLabel">Talep Kayıt</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Registration form -->
+                    <form>
+                        <div class="form-group">
+                            <label for="Request">Talep</label>
+                            <input type="text" class="form-control" id="Request">
+                        </div>
+                        <div class="form-group">
+                            <label for="CitizenName">Talep Eden kişi</label>
+                            <input type="text" class="form-control" id="CitizenName">
+                        </div>
+                        <div class="form-group">
+                            <label for="CitizenPhone">Talep Eden Telefon</label>
+                            <input type="text" class="form-control" id="CitizenPhone">
+                        </div>
+                        <div class="form-group">
+                            <label for="Note">Talep Notu</label>
+                            <input type="text" class="form-control" id="Note">
+                        </div>
+
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">kapat</button>
+                    <button type="button" class="btn btn-primary" onclick="saveRegistration()">Kaydet</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+
+    <table id="example2" class="table" style="width:100%">
+        <thead>
+            <tr>
+                <th style="display: none;">Id</th>
+                <th>Talep</th>
+                <th>Talep Eden Kişi</th>
+                <th>Talep Eden Telefon</th>
+                <th>İşleme Alan Kişi</th>
+                <th>İşleme Alanan Tarih</th>
+                <th>Talep Durumu</th>
+                <th>Not</th>
+                <th style="width:60px;"></th>
+                @*<th style="width:40px;"></th>*@
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var mdl in Model)
+            {
+                <tr>
+                    <td style="display: none;">@mdl.Id</td>
+                    <td>@mdl.Request</td>
+                    <td>@mdl.CitizenName</td>
+                    <td>@mdl.CitizenPhone</td>
+                    <td>@mdl.CreatedName</td>
+                    <td>@mdl.CreatedOn</td>
+                    <td @*class="@(GetColorClass(mdl.StatusName))"*@>@mdl.StatusName</td>
+                    <td>@mdl.Note</td>
+                    <td><button data-toggle="modal" style="background-color:darkorange; color:white;" data-target="#updateModal" onclick="updateRequest(@mdl.Id)">Güncelle</button></td>
+                    @*<td><a class="btn btn-xs btn-danger" onclick="deleteRequest(@mdl.Id)">Sil</a> </td>*@
+                </tr>
+            }
+        </tbody>
+
+    </table>
+</div>
+<!--Update Modal -->
+<div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateModal">Talep Güncelleme</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Registration form -->
+                <form>
+                    <input type="text" class="form-control" id="Id" hidden>
+
+                    <div class="form-group">
+                        <label for="Request">Talep</label>
+                        <input type="text" class="form-control" id="Request">
+                    </div>
+                    <div class="form-group">
+                        <label for="CitizenName">Talep Eden kişi</label>
+                        <input type="text" class="form-control" id="CitizenName">
+                    </div>
+                    <div class="form-group">
+                        <label for="CitizenPhone">Talep Eden Telefon</label>
+                        <input type="text" class="form-control" id="CitizenPhone">
+                    </div>
+                    <div class="form-group">
+                        <label for="Note">Talep Notu</label>
+                        <input type="text" class="form-control" id="Note">
+                    </div>
+                    <div class="form-group">
+                        <label for="StatusId">Talep Durumu</label>
+                        <select id="StatusId" class="select2 form-control">
+                            @foreach (var item in collection)
+                            {
+                                <option value="@item.Id">@item.StatusName</option>
+                            }
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">kapat</button>
+                <button id="update" type="button" class="btn btn-primary">Kaydet</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@*<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="path/to/jquery.min.js"></script>*@
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
+
+<script>
+
+    $(document).ready(function() {
+        $('#logoutButton').click(function() {
+            // Oturumu sonlandırma isteği gönder
+            $.ajax({
+                url: '/Home/Logout', // Controller adını uygun şekilde değiştirin
+                type: 'POST',
+                success: function() {
+                    // Başarılı olduğunda login sayfasına yönlendir
+                    window.location.href = '/Home/Login'; // Controller adını ve login sayfasının yolunu uygun şekilde değiştirin
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
+        });
+    });
+
+    function deleteRequest(id) {
+        $.ajax({
+            type: "GET",
+            url: "/Home/Delete?id=" + id,
+            success: function(result) {
+                //alert(result);
+                window.location.reload();
+            }
+        });
+    }
+    $(".select2").select2();
+
+    function updateRequest(id) {
+        //debugger;
+        //StatusOptions();
+        $.ajax({
+            type: "GET",
+            url: "/Home/GetDetails?id=" + id,
+            success: function(result) {
+                $("#updateModal #Id").val(result.id);
+                $("#updateModal #Request").val(result.request);
+                $("#updateModal #CitizenName").val(result.citizenName);
+                $("#updateModal #CitizenPhone").val(result.citizenPhone);
+                $('#updateModal select[Id="StatusId"]').select2('val', "" + result.statusId + "");
+                $("#updateModal #StatusName").val(result.statusName);
+                $("#updateModal #Note").val(result.note);
+                //$("#updateModal #StatusId").val(result.statusId).text(result.statusName); // Select the option with a value of '1'
+                //$("#updateModal #StatusName").trigger('change'); // Notify any JS components that the value changed
+
+                $('updateModal').modal('show');
+            },
+            error: function() {
+            }
+
+        });
+    }
+    $("#update").click(function(e) {
+        var requestModel = {
+            Id: $("#updateModal #Id").val(),
+            Request: $("#updateModal #Request").val(),
+            CitizenName: $("#updateModal #CitizenName").val(),
+            CitizenPhone: $("#updateModal #CitizenPhone").val(),
+            StatusId: $("#updateModal #StatusId").val(),
+            StatusName: $("#updateModal #StatusName").val(),
+            Note: $("#updateModal #Note").val()
+        };
+
+        $.post("/Home/Update", {
+            requestModel: requestModel
+        })
+            .done(function(data) {
+                window.location.reload();
+            });
+
+    });
+
+    //function StatusOptions() {
+    //    $.ajax({
+    //        type: "GET",
+    //        url: "/Home/GetStatus",
+    //        success: function(response) {
+    //            var selectElement = document.getElementById("statusDropdown");
+
+    //            response.forEach(function(status) {
+    //                var option = document.createElement("option");
+    //                option.text = status.statusName;
+    //                option.id = status.Id;
+    //                selectElement.appendChild(option);
+    //            });
+
+    //        },
+    //        error: function(xhr, status, error) {
+    //            console.log(error);
+    //        }
+    //    });
+    //}
+
+    // Sayfa yüklendiğinde option elemanlarını doldur
+    //window.onload = StatusOptions;
+
+    function saveRegistration() {
+        var citizenName = document.getElementById("CitizenName").value;
+        var citizenPhone = document.getElementById("CitizenPhone").value;
+        var request = document.getElementById("Request").value;
+        var note = document.getElementById("Note").value;
+
+        // AJAX isteği oluştur
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/Home/Save", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        // İsteği göndermeden önce verileri JSON formatına dönüştür
+        var data = JSON.stringify({
+            CitizenName: citizenName,
+            CitizenPhone: citizenPhone,
+            Request: request,
+            Note: note
+        });
+
+        // İstek tamamlandığında geri çağırılacak fonksiyon
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                // Başarılı yanıt alındığında burada işlemler yapabilirsiniz
+                console.log("Kayıt başarıyla kaydedildi!");
+                // Modalı kapat
+                $('#registerModal').modal('hide');
+                window.location.reload();
+            }
+        };
+
+        // İsteği gönder
+        xhr.send(data);
+    }
+
+
+    function GetColorClass(data) {
+        var colorClass = '';
+        if (data === 'Oluşturuldu') {
+            colorClass = 'grey';
+        } else if (data === 'Beklemede') {
+            colorClass = 'orange';
+        } else if (data === 'Tamamlandı') {
+            colorClass = 'green';
+        } else {
+            colorClass = 'red';
+        }
+        return colorClass;
+    }
+    $(document).ready(function() {
+        $('#example2').DataTable({
+            language: {
+                info: "_TOTAL_ kayıttan _START_ - _END_ kayıt gösteriliyor.",
+                infoEmpty: "Gösterilecek hiç kayıt yok.",
+                loadingRecords: "Kayıtlar yükleniyor.",
+                lengthMenu: "Sayfada _MENU_ kayıt göster",
+                zeroRecords: "Tablo boş",
+                search: "Arama:",
+                infoFiltered: "(toplam _MAX_ kayıttan filtrelenenler)",
+                buttons: {
+                    copyTitle: "Panoya kopyalandı.",
+                    copySuccess: "Panoya %d satır kopyalandı",
+                    copy: "Kopyala",
+                    print: "Yazdır",
+                },
+
+                paginate: {
+                    first: "İlk",
+                    previous: "Önceki",
+                    next: "Sonraki",
+                    last: "Son"
+                }
+            }
+        });
+    });
+</script>
+
+
+<style>
+    .red {
+        backround-color: red;
+    }
+
+    .orange {
+        backround-color: orange;
+    }
+
+    .gray {
+        backround-color: grey;
+    }
+
+    .green {
+        backround-color: green;
+    }
+</style>
