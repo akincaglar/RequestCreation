@@ -8,6 +8,9 @@
 @{
     var collection = (List<Status>)ViewData["getStatusList"];
 }
+@{
+    var collection2 = (List<Persons>)ViewData["getPersonsList"];
+}
 <head>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
@@ -41,12 +44,13 @@
                             <input type="text" class="form-control" id="Request">
                         </div>
                         <div class="form-group">
-                            <label for="CitizenName">Talep Eden kişi</label>
-                            <input type="text" class="form-control" id="CitizenName">
-                        </div>
-                        <div class="form-group">
-                            <label for="CitizenPhone">Talep Eden Telefon</label>
-                            <input type="text" class="form-control" id="CitizenPhone">
+                            <label for="PersonsId">Talep Eden Kişi</label>
+                            <select id="PersonsId" class="select2 form-control">
+                                @foreach (var item in collection2)
+                                {
+                                    <option value="@item.Id">@item.Name @item.Surname [@item.Phone]</option>
+                                }
+                            </select>
                         </div>
                         <div class="form-group">
                             <label for="Note">Talep Notu</label>
@@ -122,13 +126,15 @@
                         <input type="text" class="form-control" id="Request">
                     </div>
                     <div class="form-group">
-                        <label for="CitizenName">Talep Eden kişi</label>
-                        <input type="text" class="form-control" id="CitizenName">
+                        <label for="PersonsId">Talep Eden Kişi</label>
+                        <select id="PersonsId" class="select2 form-control">
+                            @foreach (var item in collection2)
+                            {
+                                <option value="@item.Id">@item.Name @item.Surname [@item.Phone]</option>
+                            }
+                        </select>
                     </div>
-                    <div class="form-group">
-                        <label for="CitizenPhone">Talep Eden Telefon</label>
-                        <input type="text" class="form-control" id="CitizenPhone">
-                    </div>
+
                     <div class="form-group">
                         <label for="Note">Talep Notu</label>
                         <input type="text" class="form-control" id="Note">
@@ -167,11 +173,11 @@
     $(document).ready(function() {
         $('#logoutButton').click(function() {
             $.ajax({
-                url: '/Home/Logout', 
+                url: '/Home/Logout',
                 type: 'POST',
                 success: function() {
                     // Başarılı olduğunda login sayfasına yönlendir
-                    window.location.href = '/Home/Login'; 
+                    window.location.href = '/Home/Login';
                 },
                 error: function(xhr, status, error) {
                     console.error(error);
@@ -201,8 +207,7 @@
             success: function(result) {
                 $("#updateModal #Id").val(result.id);
                 $("#updateModal #Request").val(result.request);
-                $("#updateModal #CitizenName").val(result.citizenName);
-                $("#updateModal #CitizenPhone").val(result.citizenPhone);
+                $('#updateModal select[Id="PersonsId"]').select2('val', "" + result.personsId + "");
                 $('#updateModal select[Id="StatusId"]').select2('val', "" + result.statusId + "");
                 $("#updateModal #StatusName").val(result.statusName);
                 $("#updateModal #Note").val(result.note);
@@ -220,8 +225,7 @@
         var requestModel = {
             Id: $("#updateModal #Id").val(),
             Request: $("#updateModal #Request").val(),
-            CitizenName: $("#updateModal #CitizenName").val(),
-            CitizenPhone: $("#updateModal #CitizenPhone").val(),
+            PersonsId: $("#updateModal #PersonsId").val(),
             StatusId: $("#updateModal #StatusId").val(),
             StatusName: $("#updateModal #StatusName").val(),
             Note: $("#updateModal #Note").val()
@@ -261,8 +265,7 @@
     //window.onload = StatusOptions;
 
     function saveRegistration() {
-        var citizenName = document.getElementById("CitizenName").value;
-        var citizenPhone = document.getElementById("CitizenPhone").value;
+        var personsId = document.getElementById("PersonsId").value;
         var request = document.getElementById("Request").value;
         var note = document.getElementById("Note").value;
 
@@ -273,8 +276,7 @@
 
         // İsteği göndermeden önce verileri JSON formatına dönüştür
         var data = JSON.stringify({
-            CitizenName: citizenName,
-            CitizenPhone: citizenPhone,
+            PersonsId: personsId,
             Request: request,
             Note: note
         });

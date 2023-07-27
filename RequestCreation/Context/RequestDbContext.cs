@@ -9,6 +9,7 @@ namespace RequestCreation.Context
         public DbSet<Requests> Requests { get; set; }
         public DbSet<Notes> Notes { get; set; }
         public DbSet<Status> Status { get; set; }
+        public DbSet<Persons> Persons { get; set; }
         public RequestDbContext(DbContextOptions<RequestDbContext> options) : base(options)
         {
 

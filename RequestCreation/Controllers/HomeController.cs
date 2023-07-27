@@ -63,19 +63,21 @@ namespace RequestCreation.Controllers
             //var username = HttpContext.Session.GetString("Username");
 
             ViewData["getStatusList"] = _dbContext.Status.ToList();
+            ViewData["getPersonsList"] = _dbContext.Persons.ToList();
             var list = (
                 from r in _dbContext.Requests
                 join n in _dbContext.Notes on r.Id equals n.RequestsId into notes
                 from note in notes.DefaultIfEmpty()
                 join u in _dbContext.User on r.CreatedBy equals u.Id
+                join p in _dbContext.Persons on r.PersonsId equals p.Id
                 join s in _dbContext.Status on r.StatusId equals s.Id
                 //orderby r.Id descending
                 select new RequestDetail
                 {
                     Id = r.Id,
                     Request = r.Request,
-                    CitizenName = r.CitizenName,
-                    CitizenPhone = r.CitizenPhone,
+                    CitizenName = p.Name + ' ' + p.Surname,
+                    CitizenPhone = p.Phone,
                     CreatedName = u.Name + ' ' + u.Surname,
                     CreatedBy = u.Id,
                     CreatedOn = r.CreatedOn,
@@ -97,8 +99,7 @@ namespace RequestCreation.Controllers
                 var data = new Requests
                 {
                     Request = model.Request,
-                    CitizenName = model.CitizenName,
-                    CitizenPhone = model.CitizenPhone,
+                    PersonsId = model.PersonsId,
                     StatusId = 1,
                     CreatedBy = 3,
                     CreatedOn = DateTime.Now
@@ -133,8 +134,7 @@ namespace RequestCreation.Controllers
                 var item = _dbContext.Requests.FirstOrDefault(x => x.Id == requestModel.Id);
 
                 item.Request = requestModel.Request;
-                item.CitizenName = requestModel.CitizenName;
-                item.CitizenPhone = requestModel.CitizenPhone;
+                item.PersonsId = requestModel.PersonsId;
                 item.StatusId = requestModel.StatusId;
                 item.CreatedBy = item.CreatedBy;
                 item.CreatedOn = item.CreatedOn;
@@ -186,13 +186,15 @@ namespace RequestCreation.Controllers
                     join n in _dbContext.Notes on r.Id equals n.RequestsId into notes
                     from note in notes.DefaultIfEmpty()
                     join u in _dbContext.User on r.CreatedBy equals u.Id
+                    join p in _dbContext.Persons on r.PersonsId equals p.Id
                     join s in _dbContext.Status on r.StatusId equals s.Id
                     select new RequestDetail
                     {
                         Id = r.Id,
                         Request = r.Request,
-                        CitizenName = r.CitizenName,
-                        CitizenPhone = r.CitizenPhone,
+                        PersonsId = r.PersonsId,
+                        CitizenName = p.Name + ' ' + p.Surname,
+                        CitizenPhone = p.Name,
                         CreatedName = u.Name + ' ' + u.Surname,
                         StatusName = s.StatusName,
                         StatusId = s.Id,
@@ -203,13 +205,19 @@ namespace RequestCreation.Controllers
             return NotFound();
         }
 
-        public JsonResult GetStatus()
-        {
-            var list = _dbContext.Status.ToList();
+        //public JsonResult GetStatus()
+        //{
+        //    var list = _dbContext.Status.ToList();
 
-            return Json(list);
-        }
+        //    return Json(list);
+        //}
 
+        //public JsonResult GetPersons()
+        //{
+        //    var list = _dbContext.Persons.ToList();
+
+        //    return Json(list);
+        //}
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
