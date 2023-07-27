@@ -166,13 +166,12 @@
 
     $(document).ready(function() {
         $('#logoutButton').click(function() {
-            // Oturumu sonlandırma isteği gönder
             $.ajax({
-                url: '/Home/Logout', // Controller adını uygun şekilde değiştirin
+                url: '/Home/Logout', 
                 type: 'POST',
                 success: function() {
                     // Başarılı olduğunda login sayfasına yönlendir
-                    window.location.href = '/Home/Login'; // Controller adını ve login sayfasının yolunu uygun şekilde değiştirin
+                    window.location.href = '/Home/Login'; 
                 },
                 error: function(xhr, status, error) {
                     console.error(error);

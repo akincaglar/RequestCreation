@@ -23,8 +23,8 @@ namespace RequestCreation
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-
-            string connectionString = "Server=DESKTOP-SNQMH12;Database=Requests;Trusted_Connection=True;MultipleActiveResultSets=true; TrustServerCertificate=true;";
+            string connectionString = "Data Source=10.10.10.126;Initial Catalog=Requests;User Id=baskan; Password=Baskan!44; TrustServerCertificate=true;";
+            //string connectionString = "Server=DESKTOP-SNQMH12;Database=Requests;Trusted_Connection=True;MultipleActiveResultSets=true; TrustServerCertificate=true;";
             services.AddDbContext<RequestDbContext>(options =>
                 options.UseSqlServer(connectionString));
 
